@@ -1,5 +1,5 @@
 import os
-from cv2 import cv2
+import cv2
 import numpy as np
 from datetime import timedelta
 from PIL import Image as Im
@@ -50,7 +50,7 @@ def FrameFetching(video):
             im_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
             bitmaparray = im_rgb
             data = Im.fromarray(bitmaparray)
-            data.save(f'folder/qwertyuiop{count}.jpg')
+            # data.save(f'folder/qwertyuiop{count}.jpg')
             try:
                 saving_frames_durations.pop(0)
             except IndexError:
@@ -59,20 +59,19 @@ def FrameFetching(video):
     return
 
 
+# A function that returns the list of durations where to save the frames
+# get the clip duration by dividing number of frames by the number of frames per second
+# use np.arange() to make floating-point steps
 def get_saving_frames_durations(cap, saving_fps):
-    """A function that returns the list of durations where to save the frames"""
     s = []
-    # get the clip duration by dividing number of frames by the number of frames per second
     clip_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
-    # use np.arange() to make floating-point steps
     for i in np.arange(0, clip_duration, 1 / saving_fps):
         s.append(i)
     return s
 
 
+# Utility function to format timedelta objects in a cool way (e.g. 00:00:20.05) omitting microseconds and retaining milliseconds
 def format_timedelta(td):
-    """Utility function to format timedelta objects in a cool way (e.g. 00:00:20.05)
-    omitting microseconds and retaining milliseconds"""
     result = str(td)
     try:
         result, ms = result.split(".")

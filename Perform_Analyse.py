@@ -1,3 +1,4 @@
+import tf
 from cv2 import cv2
 import numpy
 
@@ -7,6 +8,7 @@ framecount = 24
 # the main function that handles the assignment of analysis and threading
 # with defined video, obtain frames and perform Tensorflow per frame for results
 def performAnalyse(filename):
+
     bitmapList = []
     bitmapQueue = []
 
