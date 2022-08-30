@@ -1,19 +1,36 @@
-import tf
-from cv2 import cv2
-import numpy
+import tensorflow as tf
+import numpy as np
+import cv2
 
 framecount = 24
 
 
 # the main function that handles the assignment of analysis and threading
 # with defined video, obtain frames and perform Tensorflow per frame for results
-def performAnalyse(filename):
+def performAnalyse(filename, bitarray):
 
-    bitmapList = []
-    bitmapQueue = []
+    # Load the TFLite model and allocate tensors.
+    new_posenet_interpreter = tf.lite.Interpreter(model_path="Neural Network Models/posenet_model.tflite")
+    new_posenet_interpreter.allocate_tensors()
 
-    integerQueue = numpy.arange(0, getVideoDuration(filename), 0.04167)
-    print(integerQueue)
+    # Get input and output tensors.
+    new_posenet_input_details = new_posenet_interpreter.get_input_details()
+    new_posenet_output_details = new_posenet_interpreter.get_output_details()
+
+    # Test the model on random input data.
+    new_posenet_input_shape = new_posenet_input_details[0]['shape']
+    posenet_input_data = np.array(bitarray[new_posenet_input_shape], dtype=np.float32)
+    new_posenet_interpreter.set_tensor(new_posenet_input_details[0]['index'], posenet_input_data)
+
+    new_posenet_interpreter.invoke()
+
+    # The function `get_tensor()` returns a copy of the tensor data.
+    # Use `tensor()` in order to get a pointer to the tensor.
+    posenet_output_data = new_posenet_interpreter.get_tensor(new_posenet_output_details[0]['index'])
+    print(f"Output_Data tensor posenet model: {posenet_output_data}")
+
+    # integerQueue = np.arange(0, getVideoDuration(filename), 0.04167)
+    # print(integerQueue)
     return None
 
 

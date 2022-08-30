@@ -6,9 +6,8 @@ from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton
 from Extract_Frames import FrameFetching
 
-SAVING_FRAMES_PER_SECOND = 24
 
-
+# noinspection PyUnresolvedReferences
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()

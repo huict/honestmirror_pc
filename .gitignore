@@ -25,5 +25,6 @@ hs_err_pid*
 # generated images
 folder/
 
+
 # project python files
-nntest.py
+nntests/
