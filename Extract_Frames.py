@@ -7,7 +7,6 @@ from PIL import Image as Im
 from Perform_Analyse import performAnalyse
 
 SAVING_FRAMES_PER_SECOND = 24
-globalfilename = ""
 image_width = 257
 image_height = 257
 dim = (image_width, image_height)
@@ -30,7 +29,7 @@ dim = (image_width, image_height)
 # increment the frame count
 def FrameFetching(video):
     filename, _ = os.path.splitext(video)
-    globalfilename = filename
+    globalFilename = filename
     filename += "-opencv"
     if not os.path.isdir(filename):
         os.mkdir(filename)
@@ -52,15 +51,19 @@ def FrameFetching(video):
             break
         if frame_duration >= closest_duration:
             frame_duration_formatted = format_timedelta(timedelta(seconds=frame_duration))
-            print(f"frame is:{frame}")
             cv2.imwrite(os.path.join(filename, f"frame{frame_duration_formatted}.jpg"), frame)
 
             resized_image = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
+            resized_image = resized_image.astype(np.float32)
             bitarray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
+            bitarray = np.expand_dims(bitarray, axis=0)
 
-            performAnalyse(globalfilename, bitarray)
+            performAnalyse(globalFilename, bitarray)
+
+        # save the array as an image
             # data = Im.fromarray(bitarray)
             # data.save(f'folder/{count}.jpg')
+
             try:
                 saving_frames_durations.pop(0)
             except IndexError:
