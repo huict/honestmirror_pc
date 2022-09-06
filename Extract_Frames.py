@@ -58,7 +58,7 @@ def FrameFetching(video):
             bitarray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
             bitarray = np.expand_dims(bitarray, axis=0)
 
-            performAnalyse(globalFilename, bitarray)
+            performAnalyse(bitarray)
 
         # save the array as an image
             # data = Im.fromarray(bitarray)

@@ -4,11 +4,12 @@ import tensorflow as tf
 import numpy as np
 import cv2
 import math
-from enum import Enum
+from itertools import compress
+
 
 # the main function that handles the assignment of analysis and threading
 # with defined video, obtain frames and perform Tensorflow per frame for results
-def performAnalyse(filename, bitarray):
+def performAnalyse(bitarray):
     posenet_output_data = GetPoseNetInformation(bitarray)
     convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data)
     feedback_output_data = GetFeedbackInformation(posenet_output_data)
@@ -60,9 +61,17 @@ def GetPoseNetInformation(bitarray):
 
     # The function `get_tensor()` returns a copy of the tensor data.
     # Use `tensor()` in order to get a pointer to the tensor.
+    array = np.array([1, 2, 3, 4], dtype=object)
     posenet_output_data = new_posenet_interpreter.get_tensor(new_posenet_output_details[0]['index'])
+    posenet_output_data1 = new_posenet_interpreter.get_tensor(new_posenet_output_details[1]['index'])
+    posenet_output_data2 = new_posenet_interpreter.get_tensor(new_posenet_output_details[2]['index'])
+    posenet_output_data3 = new_posenet_interpreter.get_tensor(new_posenet_output_details[3]['index'])
     """print(f"Output_Data tensor posenet model: {posenet_output_data}")"""
-    return posenet_output_data
+    array[0] = posenet_output_data
+    array[1] = posenet_output_data1
+    array[2] = posenet_output_data2
+    array[3] = posenet_output_data3
+    return array
 
 
 def GetFeedbackInformation(posenet_output_data):
@@ -88,18 +97,12 @@ def GetFeedbackInformation(posenet_output_data):
 
 
 def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
-    # [[[[121, 2121, 12121, 21212]]]]
-    x = np.empty([1, 1, 1, 4], dtype=int)
-
     heatmaps = posenet_output_data[0]
-    offset = posenet_output_data[1]
+    offsets = posenet_output_data[1]
 
     for x in range(9):
-        print(x)
         for y in range(9):
-            print(y)
             for z in range(17):
-                print(z)
                 f = heatmaps[0][x][y][z]
                 sigmoidf = sigmoid(f)
                 heatmaps[0][x][y][z] = sigmoidf
@@ -108,7 +111,6 @@ def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
     width = len(heatmaps[0][0])
     numKeypoints = len(heatmaps[0][0][0])
 
-    # keypointPositions = np.Array(numKeypoints)  {Pair(0, 0)}
     keypointPositions = []
 
     for keypoint in range(numKeypoints):
@@ -117,45 +119,49 @@ def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
         maxCol = 0
         for row in range(height):
             for col in range(width):
-                heatmaps[0][row][col][keypoint] = heatmaps[0][row][col][keypoint]
                 if heatmaps[0][row][col][keypoint] > maxVal:
                     maxVal = heatmaps[0][row][col][keypoint]
                     maxRow = row
                     maxCol = col
 
-        keypointPositions[keypoint].append(tuple((maxRow, maxCol)))
+        print("keypoints = ")
+        print(keypoint)
+        keypointPositions.append(tuple((maxRow, maxCol)))
 
-    xCoords = np.Array(numKeypoints)
-    yCoords = np.Array(numKeypoints)
-    confidenceScore = np.Array(numKeypoints)
-    for idx in keypointPositions:
-        for position in keypointPositions:
-            positionX = keypointPositions[idx].first
-            positionY = keypointPositions[idx].second
+    xCoords = [0] * numKeypoints
+    yCoords = [0] * numKeypoints
+    confidenceScore = np.empty([numKeypoints])
+    for keypoint in range(numKeypoints):
+        positionX = keypointPositions[keypoint][0]
+        positionY = keypointPositions[keypoint][1]
 
-            hfirst = offset[0][positionY][positionX][idx]
-            hsecond = offset[0][positionY][positionX][idx + numKeypoints]
+        hfirst = offsets[0][positionY][positionX][keypoint]
+        hsecond = offsets[0][positionY][positionX][keypoint + numKeypoints]
 
-            yCoords[idx] = (positionY * 32 + hsecond)
-            xCoords[idx] = (positionX * 32 + hfirst)
+        print(f"YCoords before change: {yCoords}")
+        yCoords[keypoint] = positionY * 32 + hsecond
+        xCoords[keypoint] = positionX * 32 + hfirst
+        print(f"YCoords after change: {yCoords}")
 
-            yCoords = yCoords[idx]
-            xCoords = xCoords[idx]
+        yCoords[keypoint] = yCoords[keypoint]
+        xCoords[keypoint] = xCoords[keypoint]
 
-            confidenceScore[idx] = heatmaps[0][positionY][positionX][idx]
+        confidenceScore[keypoint] = heatmaps[0][positionY][positionX][keypoint]
 
     person = Person
-    keypointList = np.Array(numKeypoints)
+    Keypoints_bodypart = []
+    Keypoints_position = []
+    Keypoints_score = []
     totalscore = 0.0
 
     for idx in BodyParts.AllBodyparts:
         for it in BodyParts.AllBodyparts:
-            keypointList[idx].AllBodyparts = it
-            keypointList[idx].position.setX(xCoords[idx], 257)
-            keypointList[idx].position.setY(yCoords[idx], 257)
+            Keypoints_bodypart.append(it.value)
+            Keypoints_position.append(Position(xCoords[idx.value], 257))
+            Keypoints_position.append(Position(yCoords[idx.value], 257))
 
-            keypointList[idx].score = confidenceScore[idx]
-            totalscore += confidenceScore[idx]
+            Keypoints_score = confidenceScore[idx.value]
+            totalscore += confidenceScore[idx.value]
 
     person.score = totalscore / numKeypoints
     return person
@@ -167,8 +173,20 @@ class Person:
         self.keyPoints = keypoints
 
 
+class Position:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+
+    def setX(self, setter, horizontalres):
+        self.x = setter / horizontalres
+
+    def setY(self, setter, verticalres):
+        self.y = setter / verticalres
+
+
 def sigmoid(f):
-    return 1 / (1 + (math.pow(-f.toDouble(), 2.0)))
+    return 1 / (1 + (math.pow(-f, 2.0)))
 
 
 # Use OpenCV to retrieve the length of the video given by the user
