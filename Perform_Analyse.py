@@ -11,8 +11,8 @@ from itertools import compress
 # with defined video, obtain frames and perform Tensorflow per frame for results
 def performAnalyse(bitarray):
     posenet_output_data = GetPoseNetInformation(bitarray)
-    convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data)
-    feedback_output_data = GetFeedbackInformation(posenet_output_data)
+    person = convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data)
+    feedback_output_data = GetFeedbackInformation(person)
 
     # extra value needs to be made, as the current data is stored in a double array
     feedback_output_data_poses = feedback_output_data[0]
@@ -124,8 +124,6 @@ def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
                     maxRow = row
                     maxCol = col
 
-        print("keypoints = ")
-        print(keypoint)
         keypointPositions.append(tuple((maxRow, maxCol)))
 
     xCoords = [0] * numKeypoints
@@ -138,17 +136,14 @@ def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
         hfirst = offsets[0][positionY][positionX][keypoint]
         hsecond = offsets[0][positionY][positionX][keypoint + numKeypoints]
 
-        print(f"YCoords before change: {yCoords}")
         yCoords[keypoint] = positionY * 32 + hsecond
         xCoords[keypoint] = positionX * 32 + hfirst
-        print(f"YCoords after change: {yCoords}")
 
         yCoords[keypoint] = yCoords[keypoint]
         xCoords[keypoint] = xCoords[keypoint]
 
         confidenceScore[keypoint] = heatmaps[0][positionY][positionX][keypoint]
 
-    person = Person
     Keypoints_bodypart = []
     Keypoints_position = []
     Keypoints_score = []
@@ -163,7 +158,8 @@ def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
             Keypoints_score = confidenceScore[idx.value]
             totalscore += confidenceScore[idx.value]
 
-    person.score = totalscore / numKeypoints
+    score = totalscore / numKeypoints
+    person = Person(score, Keypoints_position, Keypoints_score)
     return person
 
 
@@ -171,6 +167,13 @@ class Person:
     def __init__(self, score, keypoints):
         self.score = score
         self.keyPoints = keypoints
+
+
+class Keypoints:
+    def __init__(self, bodypart, position, score):
+        self.bodypart = bodypart
+        self.position = position
+        self.score = score
 
 
 class Position:
