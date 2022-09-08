@@ -1,10 +1,9 @@
-import BodyParts
-
-import tensorflow as tf
-import numpy as np
-import cv2
 import math
-from itertools import compress
+import cv2
+import numpy as np
+import tensorflow as tf
+import BodyParts
+import Poses_and_Gestures
 
 
 # the main function that handles the assignment of analysis and threading
@@ -16,16 +15,6 @@ def performAnalyse(bitarray):
 
     # extra value needs to be made, as the current data is stored in a double array
     feedback_output_data_poses = feedback_output_data[0]
-    """print(f"Output_Data tensor feedback model: {feedback_output_data_poses}")
-
-    print(feedback_output_data_poses[0])
-    print(feedback_output_data_poses[1])
-    print(feedback_output_data_poses[2])
-    print(feedback_output_data_poses[3])
-    print(feedback_output_data_poses[4])
-    print(feedback_output_data_poses[5])
-
-    print("most scoring pose:")"""
 
     highest_scoring_pose = 0
     count = 0
@@ -36,10 +25,12 @@ def performAnalyse(bitarray):
             index = count
         count += 1
 
-    print(f"The highest scoring pose has a score of {highest_scoring_pose} and it's on index {index}")
+    pose = ''
+    for idx in Poses_and_Gestures.PosesAndGestures:
+        if idx.value == index:
+            pose = idx.name
 
-    """integerQueue = np.arange(0, getVideoDuration(filename), 0.04167)
-    # print(integerQueue)"""
+    print(f"The highest scoring pose has a score of '{highest_scoring_pose}' and features pose:  '{pose}'")
     return None
 
 
@@ -53,7 +44,6 @@ def GetPoseNetInformation(bitarray):
     new_posenet_output_details = new_posenet_interpreter.get_output_details()
 
     # Test the model on random input data.
-    # new_posenet_input_shape = new_posenet_input_details[0]['shape']
     posenet_input_data = np.array(bitarray, dtype=np.float32)
     new_posenet_interpreter.set_tensor(new_posenet_input_details[0]['index'], posenet_input_data)
 
@@ -61,7 +51,7 @@ def GetPoseNetInformation(bitarray):
 
     # The function `get_tensor()` returns a copy of the tensor data.
     # Use `tensor()` in order to get a pointer to the tensor.
-    array = np.array([1, 2, 3, 4], dtype=object)
+    array = np.array([0, 0, 0, 0], dtype=object)
     posenet_output_data = new_posenet_interpreter.get_tensor(new_posenet_output_details[0]['index'])
     posenet_output_data1 = new_posenet_interpreter.get_tensor(new_posenet_output_details[1]['index'])
     posenet_output_data2 = new_posenet_interpreter.get_tensor(new_posenet_output_details[2]['index'])
@@ -84,7 +74,6 @@ def GetFeedbackInformation(posenet_output_data):
     new_feedback_output_details = new_feedback_interpreter.get_output_details()
 
     # Test the model on random input data.
-    new_feedback_input_shape = new_feedback_input_details[0]['shape']
     feedback_input_data = np.array(posenet_output_data, dtype=np.float32)
     new_feedback_interpreter.set_tensor(new_feedback_input_details[0]['index'], feedback_input_data)
 
@@ -144,23 +133,33 @@ def convertArrayFrom_1_9_9_7_to_1_34(posenet_output_data):
 
         confidenceScore[keypoint] = heatmaps[0][positionY][positionX][keypoint]
 
-    Keypoints_bodypart = []
-    Keypoints_position = []
-    Keypoints_score = []
     totalscore = 0.0
+    Keypointslist = []
+    index = 0
 
     for idx in BodyParts.AllBodyparts:
-        for it in BodyParts.AllBodyparts:
-            Keypoints_bodypart.append(it.value)
-            Keypoints_position.append(Position(xCoords[idx.value], 257))
-            Keypoints_position.append(Position(yCoords[idx.value], 257))
-
-            Keypoints_score = confidenceScore[idx.value]
-            totalscore += confidenceScore[idx.value]
+        Keypointslist.append(
+            Keypoints(
+                idx.name,
+                Position((xCoords[index]), (yCoords[index])),
+                confidenceScore[idx.value]
+            )
+        )
+        index += 1
+        totalscore += confidenceScore[idx.value]
 
     score = totalscore / numKeypoints
-    person = Person(score, Keypoints_position, Keypoints_score)
-    return person
+    person = Person(score, Keypointslist)
+
+    lst = []
+    listwith1_34values = []
+
+    for x in person.keyPoints:
+        listwith1_34values.append(x.position.x)
+        listwith1_34values.append(x.position.y)
+
+    lst.append(listwith1_34values)
+    return lst
 
 
 class Person:
@@ -178,14 +177,8 @@ class Keypoints:
 
 class Position:
     def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def setX(self, setter, horizontalres):
-        self.x = setter / horizontalres
-
-    def setY(self, setter, verticalres):
-        self.y = setter / verticalres
+        self.x = x / 257
+        self.y = y / 257
 
 
 def sigmoid(f):
