@@ -1,8 +1,8 @@
 import os
+from datetime import timedelta
+
 import cv2
 import numpy as np
-from datetime import timedelta
-from PIL import Image as Im
 
 from Perform_Analyse import performAnalyse
 
@@ -29,7 +29,6 @@ dim = (image_width, image_height)
 # increment the frame count
 def FrameFetching(video):
     filename, _ = os.path.splitext(video)
-    globalFilename = filename
     filename += "-opencv"
     if not os.path.isdir(filename):
         os.mkdir(filename)
@@ -50,19 +49,20 @@ def FrameFetching(video):
         except IndexError:
             break
         if frame_duration >= closest_duration:
-            frame_duration_formatted = format_timedelta(timedelta(seconds=frame_duration))
-            cv2.imwrite(os.path.join(filename, f"frame{frame_duration_formatted}.jpg"), frame)
-
             resized_image = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
             resized_image = resized_image.astype(np.float32)
             bitarray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
             bitarray = np.expand_dims(bitarray, axis=0)
 
+            """ # save the array as an image with openCV
+            frame_duration_formatted = format_timedelta(timedelta(seconds=frame_duration))
+            cv2.imwrite(os.path.join(filename, f"frame{frame_duration_formatted}.jpg"), resized_image)
+            
+                # save image from bitarray
+            data = Im.fromarray(bitarray)
+            data.save(f'folder/{count}.jpg')
+            """
             performAnalyse(bitarray)
-
-        # save the array as an image
-            # data = Im.fromarray(bitarray)
-            # data.save(f'folder/{count}.jpg')
 
             try:
                 saving_frames_durations.pop(0)
@@ -76,11 +76,11 @@ def FrameFetching(video):
 # get the clip duration by dividing number of frames by the number of frames per second
 # use np.arange() to make floating-point steps
 def get_saving_frames_durations(cap, saving_fps):
-    s = []
+    saved_timestamps = []
     clip_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
     for i in np.arange(0, clip_duration, 1 / saving_fps):
-        s.append(i)
-    return s
+        saved_timestamps.append(i)
+    return saved_timestamps
 
 
 # Utility function to format timedelta objects in a cool way (e.g. 00:00:20.05) omitting microseconds and retaining milliseconds
