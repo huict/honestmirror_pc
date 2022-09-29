@@ -4,10 +4,12 @@ import tensorflow as tf
 import Poses_and_Gestures
 from convert_Posenet_to_Person import convertPosenetToPerson
 
+listWithFeedback = []
+
 
 # the main function that handles the assignment of analysis and threading
 # with defined video, obtain frames and perform Tensorflow per frame for results
-def performAnalyse(bitarray):
+def performAnalyse(bitarray, frame_duration):
     posenet_output_data = GetPoseNetInformation(bitarray)
     person = convertPosenetToPerson(posenet_output_data)
     feedback_output_data = GetFeedbackInformation(person)
@@ -25,12 +27,15 @@ def performAnalyse(bitarray):
         count += 1
 
     pose = ''
+
     for idx in Poses_and_Gestures.PosesAndGestures:
         if idx.value == index:
             pose = idx.name
 
     if pose != '':
-        print(f"'{highest_scoring_pose}','{pose}'")
+        print(f"'{frame_duration}','{pose}'")
+        listWithFeedback.append(tuple((frame_duration, pose)))
+
     return None
 
 

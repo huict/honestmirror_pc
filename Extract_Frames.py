@@ -4,6 +4,7 @@ from datetime import timedelta
 import cv2
 import numpy as np
 
+import Perform_Analyse
 from Perform_Analyse import performAnalyse
 
 SAVING_FRAMES_PER_SECOND = 24
@@ -12,8 +13,6 @@ image_height = 257
 dim = (image_width, image_height)
 
 
-# Creates a folder, retrieves frames from the video and saves them in the folder
-# make a folder by the name of the video file
 # read the video file
 # get the FPS of the video
 # if the SAVING_FRAMES_PER_SECOND is above video FPS, then set it to FPS (as maximum)
@@ -28,10 +27,6 @@ dim = (image_width, image_height)
 # drop the duration spot from the list, since this duration spot is already saved
 # increment the frame count
 def FrameFetching(video):
-    filename, _ = os.path.splitext(video)
-    filename += "-opencv"
-    if not os.path.isdir(filename):
-        os.mkdir(filename)
     cap = cv2.VideoCapture(video)
     fps = cap.get(cv2.CAP_PROP_FPS)
     saving_frames_per_second = min(fps, SAVING_FRAMES_PER_SECOND)
@@ -54,22 +49,30 @@ def FrameFetching(video):
             bitarray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
             bitarray = np.expand_dims(bitarray, axis=0)
 
-            """ # save the array as an image with openCV
-            frame_duration_formatted = format_timedelta(timedelta(seconds=frame_duration))
-            cv2.imwrite(os.path.join(filename, f"frame{frame_duration_formatted}.jpg"), resized_image)
-            
-                # save image from bitarray
-            data = Im.fromarray(bitarray)
-            data.save(f'folder/{count}.jpg')
-            """
-            performAnalyse(bitarray)
+            performAnalyse(bitarray, frame_duration)
 
             try:
                 saving_frames_durations.pop(0)
             except IndexError:
                 pass
         count += 1
-    return
+    feedbacklist = Perform_Analyse.listWithFeedback
+    return feedbacklist
+
+
+# create folder and save the array as an image with openCV
+def save_frames_in_folder(video, frame_duration, resized_image):
+    filename, _ = os.path.splitext(video)
+    filename += "-opencv"
+    if not os.path.isdir(filename):
+        os.mkdir(filename)
+    frame_duration_formatted = format_timedelta(timedelta(seconds=frame_duration))
+    cv2.imwrite(os.path.join(filename, f"frame{frame_duration_formatted}.jpg"), resized_image)
+
+    """# save image from bitarray
+    data = Im.fromarray(bitarray)
+    data.save(f'folder/{count}.jpg')"""
+    return None
 
 
 # A function that returns the list of durations where to save the frames
