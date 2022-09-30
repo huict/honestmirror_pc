@@ -32,8 +32,8 @@ def performAnalyse(bitarray, frame_duration):
         if idx.value == index:
             pose = idx.name
 
-    if pose != '':
-        print(f"'{frame_duration}','{pose}'")
+    if pose != '' and highest_scoring_pose >= 0.7:
+        print(f"'{frame_duration}' || '{highest_scoring_pose}' || '{pose}'")
         listWithFeedback.append(tuple((frame_duration, pose)))
 
     return None

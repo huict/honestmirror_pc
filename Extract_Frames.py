@@ -1,6 +1,5 @@
 import os
 from datetime import timedelta
-
 import cv2
 import numpy as np
 
