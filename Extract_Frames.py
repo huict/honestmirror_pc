@@ -13,19 +13,9 @@ image_height = 257
 dim = (image_width, image_height)
 
 
-# read the video file
-# get the FPS of the video
-# if the SAVING_FRAMES_PER_SECOND is above video FPS, then set it to FPS (as maximum)
-# get the list of duration spots to save
-# start the loop
-# break out of the loop if there are no frames to read
-# get the duration by dividing the frame count by the FPS
-# get the earliest duration to save
-# the list is empty, all duration frames were saved
-# if closest duration is less than or equals the frame duration,
-# then save the frame
-# drop the duration spot from the list, since this duration spot is already saved
-# increment the frame count
+# uses video sent by user to determine frame timeslots
+# receive a frame from the video with the timeslot given with the right proportions
+# passes the frame to the neural network functions
 def FrameFetching(video):
     cap = cv2.VideoCapture(video)
     fps = cap.get(cv2.CAP_PROP_FPS)
@@ -61,7 +51,8 @@ def FrameFetching(video):
 
 
 # create folder and save the array as an image with openCV
-def save_frames_in_folder(video, frame_duration, resized_image):
+# unused
+def save_frames_in_local_folder(video, frame_duration, resized_image):
     filename, _ = os.path.splitext(video)
     filename += "-opencv"
     if not os.path.isdir(filename):
@@ -78,6 +69,7 @@ def save_frames_in_folder(video, frame_duration, resized_image):
 # A function that returns the list of durations where to save the frames
 # get the clip duration by dividing number of frames by the number of frames per second
 # use np.arange() to make floating-point steps
+# used by frame_fetching()
 def get_saving_frames_durations(cap, saving_fps):
     saved_timestamps = []
     clip_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
@@ -87,6 +79,7 @@ def get_saving_frames_durations(cap, saving_fps):
 
 
 # Utility function to format timedelta objects in a cool way (e.g. 00:00:20.05) omitting microseconds and retaining milliseconds
+# used by save_frames_in_local_folder()
 def format_timedelta(td):
     result = str(td)
     try:

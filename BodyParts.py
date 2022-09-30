@@ -1,6 +1,7 @@
 from enum import Enum
 
 
+# used in convert_Posenet_to_Person
 class AllBodyparts(Enum):
     nose = 0
     left_eye = 1

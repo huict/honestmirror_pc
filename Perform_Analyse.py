@@ -39,6 +39,7 @@ def performAnalyse(bitarray, frame_duration):
     return None
 
 
+# Obtain PoseNet information (the 17 keypoints on a body) with an image as input
 def GetPoseNetInformation(bitarray):
     # Load the TFLite model and allocate tensors.
     new_posenet_interpreter = tf.lite.Interpreter(model_path="Neural Network Models/posenet_model.tflite")
@@ -48,7 +49,7 @@ def GetPoseNetInformation(bitarray):
     new_posenet_input_details = new_posenet_interpreter.get_input_details()
     new_posenet_output_details = new_posenet_interpreter.get_output_details()
 
-    # Test the model on random input data.
+    # Test the model on input data.
     posenet_input_data = np.array(bitarray, dtype=np.float32)
     new_posenet_interpreter.set_tensor(new_posenet_input_details[0]['index'], posenet_input_data)
 
@@ -68,6 +69,7 @@ def GetPoseNetInformation(bitarray):
     return array
 
 
+# Obtain Feedback information (gestures and poses) with an Person object as input
 def GetFeedbackInformation(posenet_output_data):
     # Load the TFLite model and allocate tensors.
     new_feedback_interpreter = tf.lite.Interpreter(model_path="Neural Network Models//feedback_model.tflite")
@@ -77,7 +79,7 @@ def GetFeedbackInformation(posenet_output_data):
     new_feedback_input_details = new_feedback_interpreter.get_input_details()
     new_feedback_output_details = new_feedback_interpreter.get_output_details()
 
-    # Test the model on random input data.
+    # Test the model on input data.
     feedback_input_data = np.array(posenet_output_data, dtype=np.float32)
     new_feedback_interpreter.set_tensor(new_feedback_input_details[0]['index'], feedback_input_data)
 
@@ -90,6 +92,7 @@ def GetFeedbackInformation(posenet_output_data):
 
 
 # Use OpenCV to retrieve the length of the video given by the user
+# Unused
 def getVideoDuration(filename):
     vidcapture = cv2.VideoCapture(filename)
     fps = vidcapture.get(cv2.CAP_PROP_FPS)

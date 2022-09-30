@@ -3,6 +3,7 @@ import numpy as np
 import BodyParts
 
 
+# feedback neural network requires an [[1, 34]] array, while posenet returns [[1, 9, 9, 17]]
 def convertPosenetToPerson(posenet_output_data):
     heatmaps = posenet_output_data[0]
     offsets = posenet_output_data[1]
