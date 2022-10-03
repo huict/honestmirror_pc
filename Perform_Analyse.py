@@ -17,24 +17,23 @@ def performAnalyse(bitarray, frame_duration):
     # extra value needs to be made, as the current data is stored in a double array
     feedback_output_data_poses = feedback_output_data[0]
 
-    highest_scoring_pose = 0
     count = 0
-    index = 0
+    # goes through all results to apply multiple checks before adding to list
     for pose in feedback_output_data_poses:
-        if pose > highest_scoring_pose:
-            highest_scoring_pose = pose
+
+        # the score needs to be higher than 70% accuracy
+        if pose > 0.7:
             index = count
+
+            # find the pose/gesture with the position in the feedback NN outputlist
+            # add the timestamp and pose in the feedbacklist
+            for idx in Poses_and_Gestures.PosesAndGestures:
+                if idx.value == index:
+                    pose = idx.name
+                    print(f"'{frame_duration}' || '{pose}'")
+                    listWithFeedback.append(tuple((frame_duration, pose)))
+
         count += 1
-
-    pose = ''
-
-    for idx in Poses_and_Gestures.PosesAndGestures:
-        if idx.value == index:
-            pose = idx.name
-
-    if pose != '' and highest_scoring_pose >= 0.7:
-        print(f"'{frame_duration}' || '{highest_scoring_pose}' || '{pose}'")
-        listWithFeedback.append(tuple((frame_duration, pose)))
 
     return None
 
@@ -69,7 +68,7 @@ def GetPoseNetInformation(bitarray):
     return array
 
 
-# Obtain Feedback information (gestures and poses) with an Person object as input
+# Obtain Feedback information (gestures and poses) with a Person object as input
 def GetFeedbackInformation(posenet_output_data):
     # Load the TFLite model and allocate tensors.
     new_feedback_interpreter = tf.lite.Interpreter(model_path="Neural Network Models//feedback_model.tflite")
