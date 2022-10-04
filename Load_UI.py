@@ -18,7 +18,7 @@ class MainWindow(QMainWindow):
         self.label = QLabel(self)
 
         # loading image
-        self.pixmap = QPixmap('logo.png')
+        self.pixmap = QPixmap('assets/logo.png')
 
         self.pixmap = self.pixmap.scaled(500, 500, Qt.KeepAspectRatio, Qt.FastTransformation)
         # adding image to label

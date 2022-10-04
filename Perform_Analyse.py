@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import tensorflow as tf
-import Poses_and_Gestures
+from enums import Poses_and_Gestures
 from convert_Posenet_to_Person import convertPosenetToPerson
 
 listWithFeedback = []
@@ -17,24 +17,30 @@ def performAnalyse(bitarray, frame_duration):
     # extra value needs to be made, as the current data is stored in a double array
     feedback_output_data_poses = feedback_output_data[0]
 
-    count = 0
+    # testdata to see what the application does when multiple poses are found in a frame
+    """feedback_output_data_poses = [1, 0, 1, 0, 0, 1]"""
+
+    listWithFeedback_length = len(listWithFeedback)
+    listWithFeedback.append([frame_duration])
+
     # goes through all results to apply multiple checks before adding to list
+    count = 0
     for pose in feedback_output_data_poses:
 
         # the score needs to be higher than 70% accuracy
         if pose > 0.7:
             index = count
+            count += 1
 
             # find the pose/gesture with the position in the feedback NN outputlist
             # add the timestamp and pose in the feedbacklist
-            for idx in Poses_and_Gestures.PosesAndGestures:
-                if idx.value == index:
-                    pose = idx.name
-                    print(f"'{frame_duration}' || '{pose}'")
-                    listWithFeedback.append(tuple((frame_duration, pose)))
+            for PaG in Poses_and_Gestures.PosesAndGestures:
+                if PaG.value == index:
+                    pose = PaG.name
 
-        count += 1
+            listWithFeedback[listWithFeedback_length].append(pose)
 
+    print(listWithFeedback[listWithFeedback_length-1])
     return None
 
 

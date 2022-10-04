@@ -20,6 +20,7 @@ def FrameFetching(video):
     fps = cap.get(cv2.CAP_PROP_FPS)
     saving_frames_per_second = min(fps, SAVING_FRAMES_PER_SECOND)
     saving_frames_durations = get_saving_frames_durations(cap, saving_frames_per_second)
+    length_frames_duration = len(saving_frames_durations)
     count = 0
 
     while True:
@@ -45,6 +46,7 @@ def FrameFetching(video):
             except IndexError:
                 pass
         count += 1
+
     feedbacklist = Perform_Analyse.listWithFeedback
     return feedbacklist
 

@@ -1,6 +1,6 @@
 import math
 import numpy as np
-import BodyParts
+from enums import BodyParts
 
 
 # feedback neural network requires an [[1, 34]] array, while posenet returns [[1, 9, 9, 17]]
