@@ -1,10 +1,30 @@
 import sys
+from random import randint
+
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
                              QSizePolicy, QVBoxLayout, QMessageBox)
 from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton
+
+import Perform_Analysis
 from Extract_Frames import FrameFetching
+
+
+class AnotherWindow(QWidget):
+    """
+    This "window" is a QWidget. If it has no parent, it
+    will appear as a free-floating window as we want.
+    """
+
+    def __init__(self):
+        super().__init__()
+        lst = Perform_Analysis.listWithFeedback
+        layout = QVBoxLayout()
+        for i in lst:
+            self.label = QLabel(f"{i}")
+            layout.addWidget(self.label)
+        self.setLayout(layout)
 
 
 # noinspection PyUnresolvedReferences
@@ -21,6 +41,7 @@ class MainWindow(QMainWindow):
         self.pixmap = QPixmap('assets/logo.png')
 
         self.pixmap = self.pixmap.scaled(500, 500, Qt.KeepAspectRatio, Qt.FastTransformation)
+
         # adding image to label
         self.label.setPixmap(self.pixmap)
 
@@ -61,11 +82,13 @@ class MainWindow(QMainWindow):
             print("starting frame cutting...")
             FrameFetching(fileName)
             print("finished!")
-            # self.w.show()
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Analysis complete")
             dlg.setText("The Frame extraction has been complete")
             dlg.exec()
+
+            self.w = AnotherWindow()
+            self.w.show()
 
     @staticmethod
     def exitCall():

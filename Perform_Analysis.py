@@ -9,7 +9,7 @@ listWithFeedback = []
 
 # the main function that handles the assignment of analysis and threading
 # with defined video, obtain frames and perform Tensorflow per frame for results
-def performAnalyse(bitarray, frame_duration):
+def performAnalysis(bitarray, frame_duration):
     posenet_output_data = GetPoseNetInformation(bitarray)
     person = convertPosenetToPerson(posenet_output_data)
     feedback_output_data = GetFeedbackInformation(person)
@@ -61,16 +61,11 @@ def GetPoseNetInformation(bitarray):
     new_posenet_interpreter.invoke()
 
     # The function `get_tensor()` returns a copy of the tensor data.
-    # Use `tensor()` in order to get a pointer to the tensor.
     array = np.array([0, 0, 0, 0], dtype=object)
-    posenet_output_data = new_posenet_interpreter.get_tensor(new_posenet_output_details[0]['index'])
-    posenet_output_data1 = new_posenet_interpreter.get_tensor(new_posenet_output_details[1]['index'])
-    posenet_output_data2 = new_posenet_interpreter.get_tensor(new_posenet_output_details[2]['index'])
-    posenet_output_data3 = new_posenet_interpreter.get_tensor(new_posenet_output_details[3]['index'])
-    array[0] = posenet_output_data  # heatmap
-    array[1] = posenet_output_data1  # offsets
-    array[2] = posenet_output_data2
-    array[3] = posenet_output_data3
+    array[0] = new_posenet_interpreter.get_tensor(new_posenet_output_details[0]['index'])  # heatmaps
+    array[1] = new_posenet_interpreter.get_tensor(new_posenet_output_details[1]['index'])  # offsets
+    array[2] = new_posenet_interpreter.get_tensor(new_posenet_output_details[2]['index'])
+    array[3] = new_posenet_interpreter.get_tensor(new_posenet_output_details[3]['index'])
     return array
 
 

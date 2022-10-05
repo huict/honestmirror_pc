@@ -3,8 +3,8 @@ from datetime import timedelta
 import cv2
 import numpy as np
 
-import Perform_Analyse
-from Perform_Analyse import performAnalyse
+import Perform_Analysis
+from Perform_Analysis import performAnalysis
 
 SAVING_FRAMES_PER_SECOND = 24
 image_width = 257
@@ -20,7 +20,6 @@ def FrameFetching(video):
     fps = cap.get(cv2.CAP_PROP_FPS)
     saving_frames_per_second = min(fps, SAVING_FRAMES_PER_SECOND)
     saving_frames_durations = get_saving_frames_durations(cap, saving_frames_per_second)
-    length_frames_duration = len(saving_frames_durations)
     count = 0
 
     while True:
@@ -39,7 +38,7 @@ def FrameFetching(video):
             bitarray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
             bitarray = np.expand_dims(bitarray, axis=0)
 
-            performAnalyse(bitarray, frame_duration)
+            performAnalysis(bitarray, frame_duration)
 
             try:
                 saving_frames_durations.pop(0)
@@ -47,7 +46,7 @@ def FrameFetching(video):
                 pass
         count += 1
 
-    feedbacklist = Perform_Analyse.listWithFeedback
+    feedbacklist = Perform_Analysis.listWithFeedback
     return feedbacklist
 
 
