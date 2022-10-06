@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-# Used in Perform_Analyse
+# Used in Perform_Analysis
 class PosesAndGestures(Enum):
     crossed_arms = 0
     delivered_gestures = 1

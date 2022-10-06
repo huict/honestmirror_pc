@@ -17,8 +17,8 @@ def performAnalysis(bitarray, frame_duration):
     # extra value needs to be made, as the current data is stored in a double array
     feedback_output_data_poses = feedback_output_data[0]
 
-    # testdata to see what the application does when multiple poses are found in a frame
-    """feedback_output_data_poses = [1, 0, 1, 0, 0, 1]"""
+    """testdata to see what the application does when multiple poses are found in a frame"""
+    # feedback_output_data_poses = [1, 0, 1, 0, 0, 1]
 
     listWithFeedback_length = len(listWithFeedback)
     listWithFeedback.append([frame_duration])
@@ -30,7 +30,6 @@ def performAnalysis(bitarray, frame_duration):
         # the score needs to be higher than 70% accuracy
         if pose > 0.7:
             index = count
-            count += 1
 
             # find the pose/gesture with the position in the feedback NN outputlist
             # add the timestamp and pose in the feedbacklist
@@ -39,6 +38,7 @@ def performAnalysis(bitarray, frame_duration):
                     pose = PaG.name
 
             listWithFeedback[listWithFeedback_length].append(pose)
+        count += 1
 
     print(listWithFeedback[listWithFeedback_length-1])
     return None

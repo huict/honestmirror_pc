@@ -6,7 +6,7 @@ import numpy as np
 import Perform_Analysis
 from Perform_Analysis import performAnalysis
 
-SAVING_FRAMES_PER_SECOND = 24
+SAVING_FRAMES_PER_SECOND = 10
 image_width = 257
 image_height = 257
 dim = (image_width, image_height)
@@ -22,6 +22,7 @@ def FrameFetching(video):
     saving_frames_durations = get_saving_frames_durations(cap, saving_frames_per_second)
     count = 0
 
+    Perform_Analysis.listWithFeedback = []
     while True:
         is_read, frame = cap.read()
         if not is_read:
