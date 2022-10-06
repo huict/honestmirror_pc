@@ -1,5 +1,4 @@
 import sys
-from random import randint
 
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QPixmap
@@ -12,17 +11,16 @@ from Extract_Frames import FrameFetching
 
 
 class AnotherWindow(QWidget):
-    """
-    This "window" is a QWidget. If it has no parent, it
-    will appear as a free-floating window as we want.
-    """
-
     def __init__(self):
         super().__init__()
         lst = Perform_Analysis.listWithFeedback
         layout = QVBoxLayout()
         for i in lst:
-            self.label = QLabel(f"{i}")
+            s = ""
+            for j in i:
+                s += str(j)
+                s += " | "
+            self.label = QLabel(s)
             layout.addWidget(self.label)
         self.setLayout(layout)
 

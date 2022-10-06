@@ -64,8 +64,8 @@ def GetPoseNetInformation(bitarray):
     array = np.array([0, 0, 0, 0], dtype=object)
     array[0] = new_posenet_interpreter.get_tensor(new_posenet_output_details[0]['index'])  # heatmaps
     array[1] = new_posenet_interpreter.get_tensor(new_posenet_output_details[1]['index'])  # offsets
-    array[2] = new_posenet_interpreter.get_tensor(new_posenet_output_details[2]['index'])
-    array[3] = new_posenet_interpreter.get_tensor(new_posenet_output_details[3]['index'])
+    array[2] = new_posenet_interpreter.get_tensor(new_posenet_output_details[2]['index'])  # forward displacements
+    array[3] = new_posenet_interpreter.get_tensor(new_posenet_output_details[3]['index'])  # backward displacements
     return array
 
 

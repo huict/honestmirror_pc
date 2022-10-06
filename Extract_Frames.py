@@ -22,7 +22,6 @@ def FrameFetching(video):
     saving_frames_durations = get_saving_frames_durations(cap, saving_frames_per_second)
     count = 0
 
-    Perform_Analysis.listWithFeedback = []
     while True:
         is_read, frame = cap.read()
         if not is_read:
@@ -51,6 +50,18 @@ def FrameFetching(video):
     return feedbacklist
 
 
+# A function that returns the list of durations where to save the frames
+# get the clip duration by dividing number of frames by the number of frames per second
+# use np.arange() to make floating-point steps
+# used by frame_fetching()
+def get_saving_frames_durations(cap, saving_fps):
+    saved_timestamps = []
+    clip_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
+    for i in np.arange(0, clip_duration, 1 / saving_fps):
+        saved_timestamps.append(i)
+    return saved_timestamps
+
+
 # create folder and save the array as an image with openCV
 # unused
 def save_frames_in_local_folder(video, frame_duration, resized_image):
@@ -67,20 +78,9 @@ def save_frames_in_local_folder(video, frame_duration, resized_image):
     return None
 
 
-# A function that returns the list of durations where to save the frames
-# get the clip duration by dividing number of frames by the number of frames per second
-# use np.arange() to make floating-point steps
-# used by frame_fetching()
-def get_saving_frames_durations(cap, saving_fps):
-    saved_timestamps = []
-    clip_duration = cap.get(cv2.CAP_PROP_FRAME_COUNT) / cap.get(cv2.CAP_PROP_FPS)
-    for i in np.arange(0, clip_duration, 1 / saving_fps):
-        saved_timestamps.append(i)
-    return saved_timestamps
-
-
 # Utility function to format timedelta objects in a cool way (e.g. 00:00:20.05) omitting microseconds and retaining milliseconds
 # used by save_frames_in_local_folder()
+# unused
 def format_timedelta(td):
     result = str(td)
     try:
