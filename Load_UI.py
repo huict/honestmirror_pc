@@ -1,3 +1,4 @@
+import collections
 import sys
 
 from PyQt5.QtCore import QDir, Qt
@@ -22,6 +23,33 @@ class AnotherWindow(QWidget):
                 s += " | "
             self.label = QLabel(s)
             layout.addWidget(self.label)
+        self.setLayout(layout)
+
+
+class CountWindow(QWidget):
+    def __init__(self):
+        super().__init__()
+        lst = Perform_Analysis.listWithFeedback
+        layout = QVBoxLayout()
+        ca = sum(sublist.count("crossed_arms") for sublist in lst)
+        dg = sum(sublist.count("delivered_gestures") for sublist in lst)
+        bta = sum(sublist.count("giving_the_back_to_the_audience") for sublist in lst)
+        hip = sum(sublist.count("hands_in_pockets") for sublist in lst)
+        swbool = sum(sublist.count("standing_with_the_bodyweight_on_one_leg") for sublist in lst)
+        htf = sum(sublist.count("hands_touching_face") for sublist in lst)
+
+        self.label = QLabel(f"Crossed_arms featured: {ca} times")
+        layout.addWidget(self.label)
+        self.label = QLabel(f"Delivered_gestured featured: {dg} times")
+        layout.addWidget(self.label)
+        self.label = QLabel(f"Giving_the_back_to_the_audience featured: {bta} times")
+        layout.addWidget(self.label)
+        self.label = QLabel(f"Hands_in_pockets featured: {hip} times")
+        layout.addWidget(self.label)
+        self.label = QLabel(f"Standing_with_the_bodyweight_on_one_leg featured: {swbool} times")
+        layout.addWidget(self.label)
+        self.label = QLabel(f"Hands_touching_face featured: {htf} times")
+        layout.addWidget(self.label)
         self.setLayout(layout)
 
 
@@ -87,6 +115,8 @@ class MainWindow(QMainWindow):
 
             self.w = AnotherWindow()
             self.w.show()
+            self.c = CountWindow()
+            self.c.show()
 
     @staticmethod
     def exitCall():
