@@ -44,7 +44,7 @@ def performAnalysis(bitarray, frame_duration):
                 listWithFeedback[listWithFeedback_length].append(pose)
             count += 1
 
-        print(listWithFeedback[listWithFeedback_length-1])
+        # print(listWithFeedback[listWithFeedback_length-1])
     return None
 
 

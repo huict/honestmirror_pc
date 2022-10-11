@@ -1,4 +1,3 @@
-import collections
 import sys
 
 from PyQt5.QtCore import QDir, Qt
@@ -11,49 +10,66 @@ import Perform_Analysis
 from Extract_Frames import FrameFetching
 
 
-class AnotherWindow(QWidget):
+class ShowAllFeedbackWindow(QWidget):
     def __init__(self):
         super().__init__()
-        lst = Perform_Analysis.listWithFeedback
+        lstWithAllFeedback = Perform_Analysis.listWithFeedback
         layout = QVBoxLayout()
-        for i in lst:
+        for feedbackPerFrame in lstWithAllFeedback:
             s = ""
-            for j in i:
-                s += str(j)
+            for pose in feedbackPerFrame:
+                s += str(pose)
                 s += " | "
             self.label = QLabel(s)
             layout.addWidget(self.label)
         self.setLayout(layout)
 
 
-class CountWindow(QWidget):
+def FindFeedbackMessage(pose):
+    f = open("assets/feedbackmessages(EN).txt", "r").readlines()
+    counter = 0
+    for i in f:
+        j = i.replace(':\n', '')
+        if pose == j:
+            return f[counter+1]
+        counter += 1
+
+
+class CountPosesWindow(QWidget):
     def __init__(self):
         super().__init__()
         lst = Perform_Analysis.listWithFeedback
         layout = QVBoxLayout()
-        ca = sum(sublist.count("crossed_arms") for sublist in lst)
-        dg = sum(sublist.count("delivered_gestures") for sublist in lst)
-        bta = sum(sublist.count("giving_the_back_to_the_audience") for sublist in lst)
-        hip = sum(sublist.count("hands_in_pockets") for sublist in lst)
-        swbool = sum(sublist.count("standing_with_the_bodyweight_on_one_leg") for sublist in lst)
-        htf = sum(sublist.count("hands_touching_face") for sublist in lst)
 
-        self.label = QLabel(f"Crossed_arms featured: {ca} times")
-        layout.addWidget(self.label)
-        self.label = QLabel(f"Delivered_gestured featured: {dg} times")
-        layout.addWidget(self.label)
-        self.label = QLabel(f"Giving_the_back_to_the_audience featured: {bta} times")
-        layout.addWidget(self.label)
-        self.label = QLabel(f"Hands_in_pockets featured: {hip} times")
-        layout.addWidget(self.label)
-        self.label = QLabel(f"Standing_with_the_bodyweight_on_one_leg featured: {swbool} times")
-        layout.addWidget(self.label)
-        self.label = QLabel(f"Hands_touching_face featured: {htf} times")
-        layout.addWidget(self.label)
+        x = sum(sublist.count('crossed_arms') for sublist in lst)
+        layout.addWidget(QLabel(f"Crossed_arms featured: {x} times"))
+        y = sum(sublist.count('delivered_gestures') for sublist in lst)
+        layout.addWidget(QLabel(f"Delivered_gestured featured: {y} times"))
+        z = sum(sublist.count('giving_the_back_to_the_audience') for sublist in lst)
+        layout.addWidget(QLabel(f"Giving_the_back_to_the_audience featured: {z} times"))
+        a = sum(sublist.count('hands_in_pockets') for sublist in lst)
+        layout.addWidget(QLabel(f"Hands_in_pockets featured: {a} times"))
+        b = sum(sublist.count('standing_with_the_bodyweight_on_one_leg') for sublist in lst)
+        layout.addWidget(QLabel(f"Standing_with_the_bodyweight_on_one_leg featured: {b} times"))
+        c = sum(sublist.count('hands_touching_face') for sublist in lst)
+        layout.addWidget(QLabel(f"Hands_touching_face featured: {c} times"))
+
+        layout.addWidget(QLabel(""))
+        counter = 0
+        f = open("assets/feedbackmessages(EN).txt", "r")
+        for i in f:
+            if counter % 2 != 0:
+                label = QLabel(f"{i}")
+                label.adjustSize()
+                label.setWordWrap(True)
+                layout.addWidget(label)
+
+            counter += 1
+
         self.setLayout(layout)
 
 
-# noinspection PyUnresolvedReferences
+# noinspection PyUnresolvedReferences,PyAttributeOutsideInit
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -113,9 +129,9 @@ class MainWindow(QMainWindow):
             dlg.setText("The Frame extraction has been complete")
             dlg.exec()
 
-            self.w = AnotherWindow()
+            self.w = ShowAllFeedbackWindow()
             self.w.show()
-            self.c = CountWindow()
+            self.c = CountPosesWindow()
             self.c.show()
 
     @staticmethod
