@@ -13,6 +13,7 @@ from Extract_Frames import FrameFetching
 class ShowAllFeedbackWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Honest Mirror")
         lstWithAllFeedback = Perform_Analysis.listWithFeedback
         layout = QVBoxLayout()
         for feedbackPerFrame in lstWithAllFeedback:
@@ -25,44 +26,39 @@ class ShowAllFeedbackWindow(QWidget):
         self.setLayout(layout)
 
 
-def FindFeedbackMessage(pose):
-    f = open("assets/feedbackmessages(EN).txt", "r").readlines()
-    counter = 0
-    for i in f:
-        j = i.replace(':\n', '')
-        if pose == j:
-            return f[counter+1]
-        counter += 1
-
-
+# Show how often specific poses have been held and features feedback voor the poses found 10 times or more
 class CountPosesWindow(QWidget):
     def __init__(self):
         super().__init__()
+        self.setWindowTitle("Honest Mirror")
         lst = Perform_Analysis.listWithFeedback
         layout = QVBoxLayout()
 
-        x = sum(sublist.count('crossed_arms') for sublist in lst)
-        layout.addWidget(QLabel(f"Crossed_arms featured: {x} times"))
-        y = sum(sublist.count('delivered_gestures') for sublist in lst)
-        layout.addWidget(QLabel(f"Delivered_gestured featured: {y} times"))
-        z = sum(sublist.count('giving_the_back_to_the_audience') for sublist in lst)
-        layout.addWidget(QLabel(f"Giving_the_back_to_the_audience featured: {z} times"))
-        a = sum(sublist.count('hands_in_pockets') for sublist in lst)
-        layout.addWidget(QLabel(f"Hands_in_pockets featured: {a} times"))
-        b = sum(sublist.count('standing_with_the_bodyweight_on_one_leg') for sublist in lst)
-        layout.addWidget(QLabel(f"Standing_with_the_bodyweight_on_one_leg featured: {b} times"))
-        c = sum(sublist.count('hands_touching_face') for sublist in lst)
-        layout.addWidget(QLabel(f"Hands_touching_face featured: {c} times"))
+        crossed_arms = sum(sublist.count('crossed_arms') for sublist in lst)
+        delivered_gestures = sum(sublist.count('delivered_gestures') for sublist in lst)
+        back_to_audience = sum(sublist.count('giving_the_back_to_the_audience') for sublist in lst)
+        hands_in_pocket = sum(sublist.count('hands_in_pockets') for sublist in lst)
+        on_one_leg = sum(sublist.count('standing_with_the_bodyweight_on_one_leg') for sublist in lst)
+        hands_touching_face = sum(sublist.count('hands_touching_face') for sublist in lst)
 
+        layout.addWidget(QLabel(f"Crossed_arms featured: {crossed_arms} times"))
+        layout.addWidget(QLabel(f"Delivered_gestured featured: {delivered_gestures} times"))
+        layout.addWidget(QLabel(f"Giving_the_back_to_the_audience featured: {back_to_audience} times"))
+        layout.addWidget(QLabel(f"Hands_in_pockets featured: {hands_in_pocket} times"))
+        layout.addWidget(QLabel(f"Standing_with_the_bodyweight_on_one_leg featured: {on_one_leg} times"))
+        layout.addWidget(QLabel(f"Hands_touching_face featured: {hands_touching_face} times"))
         layout.addWidget(QLabel(""))
+
+        lst2 = [crossed_arms, delivered_gestures, back_to_audience, hands_in_pocket, on_one_leg, hands_touching_face]
         counter = 0
-        f = open("assets/feedbackmessages(EN).txt", "r")
-        for i in f:
+        file = open("assets/feedbackmessages(EN).txt", "r")
+        for textfileLine in file:
             if counter % 2 != 0:
-                label = QLabel(f"{i}")
-                label.adjustSize()
-                label.setWordWrap(True)
-                layout.addWidget(label)
+                if lst2[(counter // 2)] >= 10:
+                    label = QLabel(f"{textfileLine}")
+                    label.adjustSize()
+                    label.setWordWrap(True)
+                    layout.addWidget(label)
 
             counter += 1
 
@@ -70,6 +66,7 @@ class CountPosesWindow(QWidget):
 
 
 # noinspection PyUnresolvedReferences,PyAttributeOutsideInit
+# The main function that sets the opening window, featuring the logo and button to start analysis
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
