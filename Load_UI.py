@@ -10,6 +10,7 @@ import Perform_Analysis
 from Extract_Frames import FrameFetching
 
 
+# Window that shows the results of the neural network, including the timestamps and recognized poses
 class ShowAllFeedbackWindow(QWidget):
     def __init__(self):
         super().__init__()
@@ -63,6 +64,7 @@ class CountPosesWindow(QWidget):
             counter += 1
 
         self.setLayout(layout)
+        file.close()
 
 
 # noinspection PyUnresolvedReferences,PyAttributeOutsideInit

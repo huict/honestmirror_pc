@@ -90,3 +90,14 @@ def format_timedelta(td):
     ms = int(ms)
     ms = round(ms / 1e4)
     return f"{result}.{ms:02}".replace(":", "-")
+
+
+# For Testing Purposes
+def writeBitarrayToFile(bitarray):
+    f = open("assets/demofile2.txt", "w")
+    for i in bitarray:
+        f.write(str(i))
+
+    f.close()
+    return True
+
