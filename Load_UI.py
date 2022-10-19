@@ -50,9 +50,11 @@ class CountPosesWindow(QWidget):
         layout.addWidget(QLabel(f"Hands_touching_face featured: {hands_touching_face} times"))
         layout.addWidget(QLabel(""))
 
+        layout.addWidget(QLabel("If some poses have been detected 10 or more times,"
+                                " feedback about those poses will be shown below: "))
         lst2 = [crossed_arms, delivered_gestures, back_to_audience, hands_in_pocket, on_one_leg, hands_touching_face]
         counter = 0
-        file = open("assets/feedbackmessages(EN).txt", "r")
+        file = open("Assets/feedbackmessages(EN).txt", "r")
         for textfileLine in file:
             if counter % 2 != 0:
                 if lst2[(counter // 2)] >= 10:
@@ -79,7 +81,7 @@ class MainWindow(QMainWindow):
         self.label = QLabel(self)
 
         # loading image
-        self.pixmap = QPixmap('assets/logo.png')
+        self.pixmap = QPixmap('Assets/logo.png')
 
         self.pixmap = self.pixmap.scaled(500, 500, Qt.KeepAspectRatio, Qt.FastTransformation)
 

@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 import tensorflow as tf
-from enums import Poses_and_Gestures
+from Enums import Poses_and_Gestures
 from convert_Posenet_to_Person import convertPosenetToPerson
 
 listWithFeedback = []
