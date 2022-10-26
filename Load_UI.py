@@ -42,6 +42,7 @@ class CountPosesWindow(QWidget):
         on_one_leg = sum(sublist.count('standing_with_the_bodyweight_on_one_leg') for sublist in lst)
         hands_touching_face = sum(sublist.count('hands_touching_face') for sublist in lst)
 
+        layout.addWidget(QLabel("<b>The following results have been found from your analysed video:</b>"))
         layout.addWidget(QLabel(f"Crossed_arms featured: {crossed_arms} times"))
         layout.addWidget(QLabel(f"Delivered_gestured featured: {delivered_gestures} times"))
         layout.addWidget(QLabel(f"Giving_the_back_to_the_audience featured: {back_to_audience} times"))
@@ -50,8 +51,8 @@ class CountPosesWindow(QWidget):
         layout.addWidget(QLabel(f"Hands_touching_face featured: {hands_touching_face} times"))
         layout.addWidget(QLabel(""))
 
-        layout.addWidget(QLabel("If some poses have been detected 10 or more times,"
-                                " feedback about those poses will be shown below: "))
+        layout.addWidget(QLabel("<b>If some poses have been detected 10 or more times,"
+                                " feedback about those poses will be shown below:</b> "))
         lst2 = [crossed_arms, delivered_gestures, back_to_audience, hands_in_pocket, on_one_leg, hands_touching_face]
         counter = 0
         file = open("Assets/feedbackmessages(EN).txt", "r")
@@ -65,8 +66,23 @@ class CountPosesWindow(QWidget):
 
             counter += 1
 
+        self.w = ShowAllFeedbackWindow()
+        self.openButton = QPushButton("Open detailed screen")
+        self.openButton.setToolTip("Open detailed screen")
+        self.openButton.setStatusTip("Open detailed screen")
+        self.openButton.clicked.connect(self.showScreen)
+        self.openButton.setFixedHeight(24)
+        layout.addWidget(self.openButton)
+
         self.setLayout(layout)
         file.close()
+
+    def showScreen(self):
+        if self.w.isVisible():
+            self.w.hide()
+        else:
+            self.w.show()
+        pass
 
 
 # noinspection PyUnresolvedReferences,PyAttributeOutsideInit
@@ -130,8 +146,6 @@ class MainWindow(QMainWindow):
             dlg.setText("The Frame extraction has been complete")
             dlg.exec()
 
-            self.w = ShowAllFeedbackWindow()
-            self.w.show()
             self.c = CountPosesWindow()
             self.c.show()
 
