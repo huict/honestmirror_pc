@@ -32,12 +32,15 @@ def FrameFetching(video):
             closest_duration = saving_frames_durations[0]
         except IndexError:
             break
+
+        # Image is being resized to the required dimensions and floatarray, colours will then be inverted
         if frame_duration >= closest_duration:
             resized_image = cv2.resize(frame, dim, interpolation=cv2.INTER_AREA)
             resized_image = resized_image.astype(np.float32)
             bitarray = cv2.cvtColor(resized_image, cv2.COLOR_BGR2RGB)
             bitarray = np.expand_dims(bitarray, axis=0)
 
+            # start analysing the frame
             performAnalysis(bitarray, frame_duration)
 
             try:

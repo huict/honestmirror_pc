@@ -3,45 +3,76 @@ import sys
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
-                             QSizePolicy, QVBoxLayout, QMessageBox)
-from PyQt5.QtWidgets import QMainWindow, QWidget, QPushButton
+                             QSizePolicy, QVBoxLayout, QMessageBox, QTableWidget, QTableWidgetItem,
+                             QMainWindow, QWidget, QPushButton, QHeaderView)
 
 import Perform_Analysis
 from Extract_Frames import FrameFetching
 
 
 # Window that shows the results of the neural network, including the timestamps and recognized poses
+# Creates table with rows and columns based on the length of the feedback results
+# Table gets filled with the results from the neural network
 class ShowAllFeedbackWindow(QWidget):
-    def __init__(self):
+    def __init__(self, lst_with_feedback):
         super().__init__()
-        self.setWindowTitle("Honest Mirror")
-        lstWithAllFeedback = Perform_Analysis.listWithFeedback
-        layout = QVBoxLayout()
-        for feedbackPerFrame in lstWithAllFeedback:
-            s = ""
-            for pose in feedbackPerFrame:
-                s += str(pose)
-                s += " | "
-            self.label = QLabel(s)
-            layout.addWidget(self.label)
-        self.setLayout(layout)
+        self.title = 'Honest Mirror Detailed Results Screen'
+        self.setWindowTitle(self.title)
+
+        self.createTable(lst_with_feedback)
+
+        self.layout = QVBoxLayout()
+        self.layout.addWidget(self.tableWidget)
+        self.setLayout(self.layout)
+
+    # Table initiation and filling with results from the neural network
+    # noinspection PyAttributeOutsideInit
+    def createTable(self, lstwithfeedback):
+        self.tableWidget = QTableWidget()
+
+        # Determines the row count based on the feedbacklist
+        self.tableWidget.setRowCount(len(lstwithfeedback))
+
+        # Determines the column count based on the feedbacklist
+        feedbacklength = 0
+        for feedbackFrame in lstwithfeedback:
+            if len(feedbackFrame) >= feedbacklength:
+                feedbacklength = len(feedbackFrame)
+        self.tableWidget.setColumnCount(feedbacklength)
+
+        # TODO: Find a way to name extra columns if 2 or poses are recognized in one frame
+        self.tableWidget.setHorizontalHeaderLabels(('Timestamp', 'Pose Recognized'))
+
+        # Fills the table with the results from the neural network
+        for feedbackFrame in lstwithfeedback:
+            index = lstwithfeedback.index(feedbackFrame)
+            for i in range(feedbacklength):
+                self.tableWidget.setItem(index, i, QTableWidgetItem(str(feedbackFrame[i])))
+
+        # Table will fit the screen horizontally
+        self.tableWidget.horizontalHeader().setStretchLastSection(True)
+        self.tableWidget.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
 
 
-# Show how often specific poses have been held and features feedback voor the poses found 10 times or more
+# noinspection PyUnresolvedReferences,PyAttributeOutsideInit
+# Shows how often specific poses have been held and features feedback for the poses found 10 or more times
+# Also gives the user the opportunity to open and close the table window at will
 class CountPosesWindow(QWidget):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Honest Mirror")
-        lst = Perform_Analysis.listWithFeedback
+        listWithFeedback = Perform_Analysis.listWithFeedback
         layout = QVBoxLayout()
 
-        crossed_arms = sum(sublist.count('crossed_arms') for sublist in lst)
-        delivered_gestures = sum(sublist.count('delivered_gestures') for sublist in lst)
-        back_to_audience = sum(sublist.count('giving_the_back_to_the_audience') for sublist in lst)
-        hands_in_pocket = sum(sublist.count('hands_in_pockets') for sublist in lst)
-        on_one_leg = sum(sublist.count('standing_with_the_bodyweight_on_one_leg') for sublist in lst)
-        hands_touching_face = sum(sublist.count('hands_touching_face') for sublist in lst)
+        # Searches how often a pose has been held in the feedbacklist
+        crossed_arms = sum(sublist.count('crossed_arms') for sublist in listWithFeedback)
+        delivered_gestures = sum(sublist.count('delivered_gestures') for sublist in listWithFeedback)
+        back_to_audience = sum(sublist.count('giving_the_back_to_the_audience') for sublist in listWithFeedback)
+        hands_in_pocket = sum(sublist.count('hands_in_pockets') for sublist in listWithFeedback)
+        on_one_leg = sum(sublist.count('standing_with_the_bodyweight_on_one_leg') for sublist in listWithFeedback)
+        hands_touching_face = sum(sublist.count('hands_touching_face') for sublist in listWithFeedback)
 
+        # Fills the layout with the above results
         layout.addWidget(QLabel("<b>The following results have been found from your analysed video:</b>"))
         layout.addWidget(QLabel(f"Crossed_arms featured: {crossed_arms} times"))
         layout.addWidget(QLabel(f"Delivered_gestured featured: {delivered_gestures} times"))
@@ -51,6 +82,8 @@ class CountPosesWindow(QWidget):
         layout.addWidget(QLabel(f"Hands_touching_face featured: {hands_touching_face} times"))
         layout.addWidget(QLabel(""))
 
+        # TODO: remove lst2 and just use the poses from the file
+        # Looks up which poses have been held for 10 or more times, then adds those poses to the layout
         layout.addWidget(QLabel("<b>If some poses have been detected 10 or more times,"
                                 " feedback about those poses will be shown below:</b> "))
         lst2 = [crossed_arms, delivered_gestures, back_to_audience, hands_in_pocket, on_one_leg, hands_touching_face]
@@ -66,7 +99,8 @@ class CountPosesWindow(QWidget):
 
             counter += 1
 
-        self.w = ShowAllFeedbackWindow()
+        # Creates a button for the window with table
+        self.w = ShowAllFeedbackWindow(listWithFeedback)
         self.openButton = QPushButton("Open detailed screen")
         self.openButton.setToolTip("Open detailed screen")
         self.openButton.setStatusTip("Open detailed screen")
@@ -111,7 +145,8 @@ class MainWindow(QMainWindow):
         self.error = QLabel()
         self.error.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Maximum)
 
-        openButton = QPushButton("Open a Video for analysis")
+        # Creates button with functionality
+        openButton = QPushButton("Open a video for analysis")
         openButton.setToolTip("Open Video File")
         openButton.setStatusTip("Open Video File")
         openButton.setFixedHeight(24)
@@ -132,6 +167,8 @@ class MainWindow(QMainWindow):
         # Set widget to contain window contents
         wid.setLayout(layout)
 
+    # Shows the user the file manager of the computer in which they can select their video for analysis
+    # Once a video has been selected, the URI will be used to access the video throughout the app
     def openFile(self):
         fileName, _ = QFileDialog.getOpenFileName(self, "Select a video for analysis",
                                                   QDir.homePath(), filter="*.mp4;*.avi;*.mov;*.flv;*.mkv")
