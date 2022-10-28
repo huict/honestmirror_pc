@@ -1,5 +1,6 @@
 import sys
 
+from IPython.external.qt_for_kernel import QtCore
 from PyQt5.QtCore import QDir, Qt
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtWidgets import (QApplication, QFileDialog, QHBoxLayout, QLabel,
@@ -44,10 +45,13 @@ class ShowAllFeedbackWindow(QWidget):
         self.tableWidget.setHorizontalHeaderLabels(('Timestamp', 'Pose Recognized'))
 
         # Fills the table with the results from the neural network
+        # set a flag to make the table cells uneditable
         for feedbackFrame in lstwithfeedback:
             index = lstwithfeedback.index(feedbackFrame)
             for i in range(feedbacklength):
-                self.tableWidget.setItem(index, i, QTableWidgetItem(str(feedbackFrame[i])))
+                item = QTableWidgetItem(str(feedbackFrame[i]))
+                item.setFlags(QtCore.Qt.ItemIsEnabled)
+                self.tableWidget.setItem(index, i, item)
 
         # Table will fit the screen horizontally
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
