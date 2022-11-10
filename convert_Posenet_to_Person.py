@@ -8,6 +8,7 @@ def convertPosenetToPerson(posenet_output_data):
     heatmaps = posenet_output_data[0]
     offsets = posenet_output_data[1]
 
+    # overwrite the heatmaps value with new sigmoid values
     for x in range(9):
         for y in range(9):
             for z in range(17):
@@ -21,6 +22,7 @@ def convertPosenetToPerson(posenet_output_data):
 
     keypointPositions = []
 
+    # Per keypoint, find the highest values of row and column and add this to the list
     for keypoint in range(numKeypoints):
         maxVal = heatmaps[0][0][0][keypoint]
         maxRow = 0
@@ -37,6 +39,8 @@ def convertPosenetToPerson(posenet_output_data):
     xCoords = [0] * numKeypoints
     yCoords = [0] * numKeypoints
     confidenceScore = np.empty([numKeypoints])
+
+    # fill in the coordinates of the keypoints in xCoords, yCoords (coordinates) and confidencescores
     for keypoint in range(numKeypoints):
         positionX = keypointPositions[keypoint][0]
         positionY = keypointPositions[keypoint][1]
@@ -56,6 +60,13 @@ def convertPosenetToPerson(posenet_output_data):
     Keypointslist = []
     index = 0
 
+    # Per keypoint, add the neccesary information to the endresults. Example:
+    #   Nose:
+    #       Position:
+    #           x:
+    #           y:
+    #       Score:
+
     for idx in BodyParts.AllBodyparts:
         Keypointslist.append(
             Keypoints(
@@ -67,16 +78,21 @@ def convertPosenetToPerson(posenet_output_data):
         index += 1
         totalscore += confidenceScore[idx.value]
 
+    # determine score
     score = totalscore / numKeypoints
+
+    # create person object with all the information from above
     person = Person(score, Keypointslist)
 
     lst = []
     listwith1_34values = []
 
+    # per keypoint, add coordinates to list
     for personKeypoint in person.keyPoints:
         listwith1_34values.append(personKeypoint.position.x)
         listwith1_34values.append(personKeypoint.position.y)
 
+    # append list to list, so it becomes a fitting size for the neural network
     lst.append(listwith1_34values)
     return lst
 

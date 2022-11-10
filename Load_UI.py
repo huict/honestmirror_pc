@@ -184,7 +184,7 @@ class MainWindow(QMainWindow):
             print("finished!")
             dlg = QMessageBox(self)
             dlg.setWindowTitle("Analysis complete")
-            dlg.setText("The Frame extraction has been complete")
+            dlg.setText("The Analysis is complete, press on OK to view the results")
             dlg.exec()
 
             self.c = CountPosesWindow()
