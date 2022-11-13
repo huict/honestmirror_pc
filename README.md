@@ -34,6 +34,16 @@ The computer version of Honest Mirror ([also known as CHPE on github](https://gi
 11. The application creates a window featuring the poses and how often they occured. Every pose found 10 or more time displays a full feedbackmessage, read from the textfile *Feedbackmessages(EN).txt* in the assets folder.
 12. The application also creates a table with the results in more detail when pressed on the button. *ShowAllFeedbackWindow()* will be called for this.
 
+## Responsibilities of the project's structure:
+- **Assets folder**: Contains resources used in the project, like textfiles and images. In this case the feedbackmessages and project logo.
+- **Enums folder**: Contains the enums used in the code. As of writing, it contains a list with the 17 keypoints recognized by Tensorflow Posenet and the supported 6 poses by the Feedback Neural Network. 
+- **Neural Network models folder**: as the title says, it contains the Neural Networks used in the project, in this case Tensorflow Posenet and the Feedback Neural Network.
+- **convert_person_to_posenet.py**: Responsible for the right conversion from the output of Tensorflow Posenet to the input for the Feedback Neural Network.
+- **Extract_Frames.py**: Retrieves the frames from the presentation video the user has given. Frame will be used later for analysis.
+- **Load_UI.py**: Loads the application and is responsible for the User Interface of the application, like displays, windows and buttons for the user to interact with.
+- **Perform_Analysis.py**: Analyses de frame received from Extract_Frames.py. Responsible for the Neural Network input and output and the handling thereof.
+
+
 ## Current issues that need to be fixed:
 - The feedback is currently not accurate. This is likely due to the Tensorflow results not lining up with the android version of Honest Mirror. After researching the cause, it has come to my attention that both applications insert different lists into Tensorflow. The mobile version creates a ByteBuffer with ~30.000 values, while the Windows version creates an bitarray featuring pixels with ~120.000 values. This problem requires more research, including an answer to the question *why* the android version uses byte shuffling. 
 
